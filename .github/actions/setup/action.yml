@@ -1,0 +1,84 @@
+name: 'Setup'
+description: 'Sets up Bun, Carog, caches installation, and installs dependencies'
+
+inputs:
+  bun-version:
+    description: 'The Bun version to use'
+    required: false
+    default: 'latest'
+  setup-rust:
+    description: 'Whether to set up Rust toolchain'
+    required: false
+    default: 'true'
+  rust-targets:
+    description: 'Comma-separated list of Rust targets to install'
+    required: false
+    default: ''
+
+outputs:
+  latest_commit_message:
+    description: 'The subject of the latest commit message'
+    value: ${{ steps.latest_commit_message.outputs.title }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Rust stable
+      if: inputs.setup-rust == 'true'
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ inputs.rust-targets }}
+
+    - name: Cache Rust build artefacts
+      if: inputs.setup-rust == 'true'
+      uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: "service -> service/target"
+        
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: ${{ inputs.bun-version }}
+
+    - name: Setup root .env
+      run: |
+        if [ -f .env.sample ]; then
+          if [ ! -f .env ]; then
+            cp .env.sample .env || true
+          fi
+        fi
+      shell: bash
+
+    - name: Get latest commit message
+      id: latest_commit_message
+      run: |
+        TITLE=""
+        if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ github.event.pull_request.title }}" ]; then
+          TITLE="${{ github.event.pull_request.title }}"
+        elif [ -n "${{ github.event.head_commit.message }}" ]; then
+          TITLE="${{ github.event.head_commit.message }}"
+        else
+          if git rev-parse --git-dir > /dev/null 2>&1; then
+            TITLE=$(git log -1 --pretty=format:%s 2>/dev/null || true)
+          fi
+        fi
+
+        # Escape characters for GitHub output
+        TITLE_SAFE=${TITLE//'%'/'%25'}
+        TITLE_SAFE=${TITLE_SAFE//$'\n'/'%0A'}
+        TITLE_SAFE=${TITLE_SAFE//$'\r'/'%0D'}
+
+        echo "title=$TITLE_SAFE" >> "$GITHUB_OUTPUT"
+      shell: bash
+
+    - name: Cache Bun dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.bun/install/cache
+        key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-bun-
+
+    - name: Install dependencies
+      shell: bash
+      run: bun install --frozen-lockfile

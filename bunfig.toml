@@ -1,0 +1,7 @@
+# Bun configuration
+# https://bun.sh/docs/runtime/bunfig
+
+[test]
+# Coverage
+coverageDir = "coverage"
+coverageReporter = ["text", "lcov"]
