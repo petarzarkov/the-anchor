@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/latest",
-  "productName": "Tauri Vite Template",
+  "productName": "The Anchor",
   "version": "0.1.0",
-  "identifier": "com.tauri.vite.template",
+  "identifier": "com.the-anchor.app",
   "build": {
     "devUrl": "http://localhost:1420",
     "frontendDist": "../dist",
@@ -12,14 +12,15 @@
   "app": {
     "windows": [
       {
-        "title": "Tauri Vite Template",
-        "width": 1280,
-        "height": 800,
-        "minWidth": 900,
-        "minHeight": 600,
-        "resizable": true,
+        "title": "The Anchor",
+        "width": 320,
+        "height": 60,
+        "resizable": false,
         "fullscreen": false,
-        "theme": "Dark"
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true
       }
     ],
     "security": {

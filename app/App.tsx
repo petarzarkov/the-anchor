@@ -1,69 +1,115 @@
 import {
+  Box,
   Button,
   Flex,
-  Heading,
-  HStack,
+  Input,
   Text,
 } from '@chakra-ui/react';
 import { invoke } from '@tauri-apps/api/core';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function App() {
-  const [count, setCount] = useState(0);
+  const [task, setTask] = useState('');
+  const [isEditing, setIsEditing] = useState(true);
 
-  const call = async (cmd: string) => {
-    const next = await invoke<number>(cmd);
-    setCount(next);
+  useEffect(() => {
+    invoke<string>('get_task').then(saved => {
+      if (saved) {
+        setTask(saved);
+        setIsEditing(false);
+      }
+    });
+  }, []);
+
+  const handleSave = async () => {
+    if (!task.trim()) return;
+    await invoke('set_task', { task });
+    setIsEditing(false);
+  };
+
+  const handleClear = async () => {
+    await invoke('clear_task');
+    setTask('');
+    setIsEditing(true);
   };
 
   return (
-    <Flex
-      align="center"
-      bg="gray.900"
-      color="white"
-      direction="column"
-      gap={8}
+    <Box
+      bg="rgba(13, 13, 13, 0.88)"
+      borderRadius="lg"
+      data-tauri-drag-region
       h="100vh"
-      justify="center"
+      px={3}
+      w="100vw"
     >
-      <Heading size="2xl">Tauri Counter</Heading>
-      <Text
-        color="orange.400"
-        fontSize="8xl"
-        fontWeight="bold"
-      >
-        {count}
-      </Text>
-      <HStack gap={4}>
-        <Button
-          onClick={() => call('decrement')}
-          size="lg"
-          variant="ghost"
+      {isEditing ? (
+        <Flex align="center" gap={2} h="100%">
+          <Input
+            autoFocus
+            color="white"
+            flex={1}
+            onChange={e => setTask(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') handleSave();
+              if (e.key === 'Escape' && task) {
+                setIsEditing(false);
+              }
+            }}
+            placeholder="What is your ONE task?"
+            size="sm"
+            value={task}
+            variant="flushed"
+          />
+          <Button
+            color="green.300"
+            onClick={handleSave}
+            size="xs"
+            variant="ghost"
+          >
+            ✓
+          </Button>
+        </Flex>
+      ) : (
+        <Flex
+          align="center"
+          data-tauri-drag-region
+          gap={2}
+          h="100%"
+          justify="space-between"
         >
-          −
-        </Button>
-        <Button
-          onClick={() => call('reset')}
-          size="lg"
-          variant="solid"
-        >
-          Reset
-        </Button>
-        <Button
-          onClick={() => call('increment')}
-          size="lg"
-          variant="solid"
-        >
-          +
-        </Button>
-        <Button
-          onClick={() => call('random_increment')}
-          size="lg"
-          variant="outline"
-        >
-          Random
-        </Button>
-      </HStack>
-    </Flex>
+          <Text
+            color="orange.300"
+            data-tauri-drag-region
+            flex={1}
+            fontWeight="bold"
+            overflow="hidden"
+            textOverflow="ellipsis"
+            whiteSpace="nowrap"
+          >
+            ⚓ {task}
+          </Text>
+          <Flex gap={1} shrink={0}>
+            <Button
+              color="gray.300"
+              onClick={() => setIsEditing(true)}
+              size="xs"
+              title="Edit task"
+              variant="ghost"
+            >
+              ✎
+            </Button>
+            <Button
+              color="green.300"
+              onClick={handleClear}
+              size="xs"
+              title="Mark complete"
+              variant="ghost"
+            >
+              ✓
+            </Button>
+          </Flex>
+        </Flex>
+      )}
+    </Box>
   );
 }

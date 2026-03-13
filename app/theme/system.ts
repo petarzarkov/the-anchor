@@ -9,10 +9,12 @@ const customConfig = defineConfig({
   globalCss: {
     html: {
       fontSize: '16px',
+      overflow: 'hidden',
     },
     body: {
-      bg: 'gaming.darker',
+      bg: 'transparent',
       color: 'white',
+      overflow: 'hidden',
     },
   },
   theme: {

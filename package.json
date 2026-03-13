@@ -1,8 +1,8 @@
 {
-  "name": "tauri-vite-template",
-  "version": "0.0.1",
+  "name": "the-anchor",
+  "version": "0.1.0",
   "private": true,
-  "description": "Tauri Vite Template - A starter template for building Tauri applications with Vite and React.",
+  "description": "Always-on-top single tasker — keep your ONE task in view.",
   "type": "module",
   "scripts": {
     "prepare": "husky",
@@ -14,7 +14,8 @@
     "lint": "biome check --write --unsafe .",
     "format": "biome format --write .",
     "tauri:dev": "tauri dev --config service/tauri.conf.json",
-    "tauri:build": "tauri build --config service/tauri.conf.json"
+    "tauri:build": "tauri build --config service/tauri.conf.json",
+    "gen:icons": "bunx tauri icon <your_icon_here>"
   },
   "dependencies": {
     "@chakra-ui/react": "3.34.0",
