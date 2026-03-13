@@ -4,7 +4,11 @@
 )]
 
 use std::sync::Mutex;
-use tauri::State;
+use tauri::{
+    menu::{Menu, MenuItem},
+    tray::TrayIconBuilder,
+    Manager, State,
+};
 
 pub struct AppState {
     pub task: Mutex<String>,
@@ -39,6 +43,28 @@ fn main() {
         .plugin(tauri_plugin_shell::init())
         .manage(AppState {
             task: Mutex::new(String::new()),
+        })
+        .setup(|app| {
+            let quit = MenuItem::with_id(
+                app, "quit", "Quit", true,
+                None::<&str>,
+            )?;
+            let menu = Menu::with_items(app, &[&quit])?;
+            TrayIconBuilder::new()
+                .icon(
+                    app.default_window_icon()
+                        .unwrap()
+                        .clone(),
+                )
+                .menu(&menu)
+                .tooltip("The Anchor")
+                .on_menu_event(|app, event| {
+                    if event.id() == "quit" {
+                        app.exit(0);
+                    }
+                })
+                .build(app)?;
+            Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             get_task,

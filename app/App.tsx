@@ -6,6 +6,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { invoke } from '@tauri-apps/api/core';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useEffect, useState } from 'react';
 
 export default function App() {
@@ -32,6 +33,8 @@ export default function App() {
     setTask('');
     setIsEditing(true);
   };
+
+  const handleQuit = () => getCurrentWindow().close();
 
   return (
     <Box
@@ -67,6 +70,15 @@ export default function App() {
             variant="ghost"
           >
             ✓
+          </Button>
+          <Button
+            color="gray.500"
+            onClick={handleQuit}
+            size="xs"
+            title="Quit"
+            variant="ghost"
+          >
+            ×
           </Button>
         </Flex>
       ) : (
@@ -106,6 +118,15 @@ export default function App() {
               variant="ghost"
             >
               ✓
+            </Button>
+            <Button
+              color="gray.500"
+              onClick={handleQuit}
+              size="xs"
+              title="Quit"
+              variant="ghost"
+            >
+              ×
             </Button>
           </Flex>
         </Flex>
