@@ -6,7 +6,6 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { invoke } from '@tauri-apps/api/core';
-import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useEffect, useState } from 'react';
 
 export default function App() {
@@ -34,13 +33,9 @@ export default function App() {
     setIsEditing(true);
   };
 
-  const handleQuit = () => getCurrentWindow().close();
-
   return (
     <Box
       bg="rgba(13, 13, 13, 0.88)"
-      borderRadius="lg"
-      data-tauri-drag-region
       h="100vh"
       px={3}
       w="100vw"
@@ -71,27 +66,16 @@ export default function App() {
           >
             ✓
           </Button>
-          <Button
-            color="gray.500"
-            onClick={handleQuit}
-            size="xs"
-            title="Quit"
-            variant="ghost"
-          >
-            ×
-          </Button>
         </Flex>
       ) : (
         <Flex
           align="center"
-          data-tauri-drag-region
           gap={2}
           h="100%"
           justify="space-between"
         >
           <Text
             color="orange.300"
-            data-tauri-drag-region
             flex={1}
             fontWeight="bold"
             overflow="hidden"
@@ -118,15 +102,6 @@ export default function App() {
               variant="ghost"
             >
               ✓
-            </Button>
-            <Button
-              color="gray.500"
-              onClick={handleQuit}
-              size="xs"
-              title="Quit"
-              variant="ghost"
-            >
-              ×
             </Button>
           </Flex>
         </Flex>
